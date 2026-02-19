@@ -15,6 +15,7 @@ export default function GameBoard() {
         wrongCells,
         checkSolution,
         solvePuzzle,
+        generatePuzzle,
         isCellWrong,
     } = useStarBattle();
 
@@ -69,6 +70,12 @@ export default function GameBoard() {
                         className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-bold rounded transition-colors"
                     >
                         Clear Board
+                    </button>
+                    <button
+                        onClick={generatePuzzle}
+                        className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-bold rounded transition-colors"
+                    >
+                        Generate
                     </button>
                     <button
                         onClick={solvePuzzle}

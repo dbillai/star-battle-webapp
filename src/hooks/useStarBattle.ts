@@ -2,11 +2,15 @@ import { useState } from 'react';
 import { Board, CellValue, Position } from '@/types/game';
 import { initializeBoard } from '@/lib/board/initializeBoard';
 import { solveBoard } from '@/lib/board/solver';
+import { generateUniquePuzzle } from '@/lib/board/generator';
 import { PUZZLE_1 } from '@/data/puzzles';
 import { getWrongCells } from '@/lib/board/checkSolution';
 
 export function useStarBattle() {
   const [board, setBoard] = useState<Board>(initializeBoard());
+  // puzzleBoard holds the original clue board (default or generated). Reset will restore this.
+  const [puzzleBoard, setPuzzleBoard] = useState<Board>(initializeBoard());
+  const [solution, setSolution] = useState<number[][]>(PUZZLE_1.solution);
   const [isMouseDown, setIsMouseDown] = useState(false);
   const [visitedCells, setVisitedCells] = useState<Set<string>>(new Set());
   const [wrongCells, setWrongCells] = useState<Set<string>>(new Set());
@@ -57,12 +61,13 @@ export function useStarBattle() {
   };
 
   const resetBoard = () => {
-    setBoard(initializeBoard());
+    // restore the original puzzle board (preserve generated puzzle if present)
+    setBoard(puzzleBoard);
     setWrongCells(new Set());
   };
 
   const checkSolution = () => {
-    const wrong = getWrongCells(board, PUZZLE_1.solution);
+    const wrong = getWrongCells(board, solution);
     const wrongSet = new Set(
       wrong.map(pos => `${pos.row}-${pos.col}`)
     );
@@ -92,6 +97,19 @@ export function useStarBattle() {
     console.log('Solved board (not applied to UI):', solvedBoard);
   };
 
+  const generatePuzzle = () => {
+    const res = generateUniquePuzzle();
+    if (!res) {
+      console.log('Failed to generate puzzle');
+      return;
+    }
+  // show cleared board to the player, but keep the clue board for resets
+  setBoard(res.emptyBoard);
+  setPuzzleBoard(res.emptyBoard);
+  setSolution(res.solution);
+  setWrongCells(new Set());
+  };
+
 
   return {
     board,
@@ -103,5 +121,6 @@ export function useStarBattle() {
     isCellWrong,
     checkSolution,
     solvePuzzle,
+    generatePuzzle,
   };
 }
